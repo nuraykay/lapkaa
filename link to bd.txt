@@ -1,0 +1,22 @@
+from flask import Flask, jsonify, render_template 
+from flask_sqlalchemy import SQLAlchemy 
+ 
+app = Flask(__name__) 
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1111@localhost/QQ' 
+db = SQLAlchemy(app) 
+ 
+class Product(db.Model): 
+    tablename = 'products' 
+ 
+    product_id = db.Column(db.Integer, primary_key=True) 
+    name = db.Column(db.String(100), nullable=False) 
+    description = db.Column(db.Text) 
+    price = db.Column(db.Numeric(10, 2)) 
+    stock_quantity = db.Column(db.Integer) 
+ 
+    def __repr__(self): 
+        return f'<Product {self.name}>' 
+@app.route('/') 
+def index(): 
+    products = Product.query.all() 
+    return render_template('../h', products=products)
