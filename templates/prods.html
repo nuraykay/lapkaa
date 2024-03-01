@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="stylesheet" href="../static/prod.css">
+    <title>{{ product_name }}</title> <!-- Используйте product_name -->
+</head>
+<body>
+    <header>
+        <a href="/" class="header-button">Назад</a>
+        <a href="{{ url_for('mainp') }}" class="header-button">Главная</a>
+        <a href="/cart" class="cart-link"><img src="../static/cart.png" alt="Cart"> Корзина</a>
+    </header>
+    <div class="product-details-container">
+        <h1 class="product-title">{{ product_name }}</h1> <!-- Используйте product_name -->
+
+        <div class="product-image">
+            <img src=".{{ product_image_url }}" alt="{{ product_name }}"> <!-- Используйте product_image_url -->
+        </div>
+       
+        <p class="product-description">{{ product_description }}</p> <!-- Используйте product_description -->
+        <p class="product-price">Цена: {{ product_price }} тг.</p> <!-- Используйте product_price -->
+        <p class="product-stock">В наличии: {{ product_stock }} шт.</p> <!-- Используйте product_stock -->
+
+        <a href="/" class="back-button">Назад к списку продуктов</a>
+        <form action="{{ url_for('add_to_cart') }}" method="post"onsubmit="return addToCartAlert()">
+            <input type="hidden" name="product_id" value="{{ product_id }}"> <!-- Используйте product_id -->
+            <button type="submit">Добавить в корзину</button>
+        </form>
+    </div>
+    <script>
+    function addToCartAlert() {
+        alert('Продукт успешно добавлен в корзину!');
+        return true; // Возвращаем true для продолжения отправки формы
+    }
+</script>
+</body>
+</html>

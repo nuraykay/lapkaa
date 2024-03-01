@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Оплата</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="../static/pay.css">
+</head>
+<body>
+    <div class="modal">
+        <form class="form" action="{{ process_payment  }}" method="post">
+            <div class="paymentother">
+                <a href="/" class="paymentother">Назад</a>
+            </div>
+            <div class="separator">
+                <hr class="line">
+                <p></p>
+                <hr class="line">
+            </div>
+            <div class="card-info">
+                <div class="input_container">
+                    <label class="input_label">Адрес</label>
+                    <input class="input_field" name="address" type="text" placeholder="Введите адрес (город, улица, дом, квартира)...">
+                </div>
+                <div class="input_container">
+                    <label class="input_label">Имя владельца карты</label>
+                    <input class="input_field" name="card_name" type="text" placeholder="Введите полное имя...">
+                </div>
+                <div class="input_container">
+                    <label class="input_label">Номер карты</label>
+                    <input class="input_field" name="card_number" type="number" placeholder="0000 0000 0000 0000">
+                </div>
+                <div class="input_container">
+                    <label class="input_label">Срок действия / CVV</label>
+                    <div class="split">
+                        <input class="input_field" name="card_expiry" style="width: 250px;" type="text" placeholder="01/23">
+                        <input class="input_field" name="card_cvv" style="width: 110px;" type="number" placeholder="CVV">
+                    </div>
+                </div>
+            </div>
+            <button class="checkout" type="submit">
+                <span>Оплатить</span>
+            </button>
+        </form>
+    </div>
+</body>
+</html>

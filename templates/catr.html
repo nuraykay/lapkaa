@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="stylesheet" href="../static/css1.css">
+    <title>Продукты для кошек</title>
+</head>
+<body>
+    <header>
+        <a id="backButton" href="/">Назад</a>
+        <form action="/cart" method="get"> 
+            <input type="text" name="query" placeholder="Поиск по продуктам..."> 
+            <button type="submit">Поиск</button> 
+        </form>
+    </header>
+   
+    <div class="product-container">
+        {% for product in postgres_data %}
+            <div class="product">
+                <a href="/product/{{ product[0] }}"> <!-- Измененный путь -->
+                    <div class="product-title">{{ product[1] }}</div>
+                    <div class="product-image">
+                        <img src="{{ product[5] }}" alt="{{ product[1] }}">
+                    </div>
+                    <div class="product-description">{{ product[2] }}</div>
+                    <div class="product-price">{{ product[3] }} тг.</div>
+                    <div class="product-stock">В наличии: {{ product[4] }} шт.</div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

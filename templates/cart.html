@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <link rel="stylesheet" href="../static/cart.css">
+    <title>Корзина</title>
+</head>
+<body>
+    <header>
+        <a id="backButton" href="/">Назад</a>
+    </header>
+   
+    <div class="cart-title">
+        <h1>Корзина</h1>
+    </div>
+
+    <div class="cart-container">
+        {% for product in cart_data %}
+            <div class="cart-item">
+                <div class="cart-image">
+                    <img src="{{ product['image_url'] }}" alt="{{ product['name'] }}">
+                </div>
+                <p>{{ product['name'] }}</p>
+                <p class="price">{{ product['price'] }} тг.</p>
+                <div class="quantity-controls">
+                    <form action="{{ url_for('update_quantity', product_id=product['product_id']) }}" method="post">
+                        <button type="submit" name="change" value="decrease" class="quantity-button">-</button>
+                        <span class="quantity" id="quantity_{{ product['product_id'] }}">{{ product['quantity'] }}</span>
+                        <button type="submit" name="change" value="increase" class="quantity-button">+</button>
+                    </form>
+                </div>
+                <form action="{{ url_for('remove_from_cart', product_id=product['product_id']) }}" method="post">
+                    <button class="remove-item-button" type="submit">Удалить из корзины</button>
+                </form>
+            </div>
+        {% endfor %}
+        <div id="totalPrice">Общая стоимость: {{ total }} тг.</div>
+    </div>
+    
+</body>
+<footer class="payment">
+    <a href="/pay" id="backButton" >Перейти к оплате</a>
+
+</footer>
+</html>

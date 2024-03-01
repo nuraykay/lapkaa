@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Интернет Зоомагазин</title>
+        <link rel="stylesheet" href="../static/css.css">
+        
+        
+    </head>
+    <body>
+        <header>
+            <div class="header-content">
+                <h1>LAPKA</h1>
+                <nav>
+                    <ul>
+                        <li><a href="#top">Главная</a></li>
+                        <li><a href="#products">Животные</a></li>
+                        <li><a href="#suppliers">Партнеры</a></li>
+                        <li><a href="#footer">Контакты</a></li>
+                        <a href="/feedback" class="abob">Отзывы</a>
+                    </ul>
+                </nav>
+                <div class="auth-cart">
+                    {% if 'username' in session %}
+                        <a href="{{ url_for('logout') }}" class="abob">Выход</a>
+                    {% else %}
+                        <a href="/login" class="abob">Войти</a>
+                        <a href="/register" class="abob">Регистрация</a>
+                    {% endif %}
+                    <a href="/cart" class="cart-link">
+                        <img src="../static/cart.png" alt="Cart"> Корзина
+                    </a>
+                  
+                </div>  
+        </header>
+        <main>
+
+
+                 <section class="banner ">
+                    <div class="banner-img">
+                        <img src="../static/banner.png" alt="banner">
+                    </div>
+                 </section>
+
+
+                 <section class="orange-separator" id="products"></section>    
+                <section class="products" >
+                    {% for name, map_p, links in postgres_data %}
+                        <div class="product-item">
+                            <a href="{{ links }}"><img src="{{ map_p }}" alt="{{ name }}"><p>{{ name }}</p></a>
+                        </div>
+                    {% endfor %}
+                </section>
+
+                <!-- <section class="orange-separator"></section>              -->
+                <section id="suppliers"></section>
+                    <section class="suppliers" >
+                        <div class="supplier">
+                            <div class="supplier-circle">
+                                <img src="../static/sup1.png" alt="sup1 Logo">
+                            </div>
+                            <h3>Sup1</h3>
+                            <p>Оценка: ☆☆☆☆</p>
+                        </div>
+                        <div class="supplier">
+                            <div class="supplier-circle">
+                                <img src="../static/sup2.png" alt="sup2 Logo">
+                            </div>
+                            <h3>Car` Zverey</h3>
+                            <p>Оценка: ☆☆☆☆☆</p>
+                        </div>
+                        <div class="supplier">
+                            <div class="supplier-circle">
+                                <img src="../static/sup3.png" alt="sup3 Logo">
+                            </div>
+                            <h3>AmanMisik</h3>
+                            <p>Оценка: ☆☆☆☆</p>
+                        </div>
+                     </section>
+
+            <!-- [rest of the template remains the same] -->
+        </main>
+        <section id="footer">
+            <footer>
+            
+                <div class="footer-content">
+                <div class="footer-section">
+                    <h3>О нас</h3>
+                    <p>Интернет Зоомагазин - ваш надежный поставщик товаров для питомцев.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <p>Телефон: +7 771 525 10 40 </p>
+                    <p>Email:lapkazoo@gmail.com</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Следите за нами</h3>
+                    <p><a href="#">Instagram</a></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2023 Интернет Зоомагазин, Все права защищены</p>
+            </div>
+        </footer>
+        </section>
+        <script src="./js.js"></script>
+    </body>
+</script>
+</html>
