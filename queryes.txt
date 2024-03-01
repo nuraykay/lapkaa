@@ -1,0 +1,445 @@
+
+-- DROP TABLE IF EXISTS products, categories, product_categories, customers, orders,
+-- order_items, suppliers,product_suppliers, transactions, discounts,
+-- reviews, feedback, employees, employee_schedule, customer_addresses, cart, reg,
+-- log, card_details,payment_methods
+
+CREATE TABLE products (
+    product_id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2),
+    stock_quantity INTEGER,
+	map_p VARCHAR(100)
+);
+
+
+CREATE TABLE categories (
+    category_id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+	map VARCHAR(100),
+	links VARCHAR(100)
+);
+
+
+CREATE TABLE product_categories (
+    product_id INTEGER REFERENCES products(product_id),
+    category_id INTEGER REFERENCES categories(category_id),
+    PRIMARY KEY (product_id, category_id)
+);
+
+
+CREATE TABLE reg (
+    customer_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(100) ,
+    email VARCHAR(100) ,
+    phone_number VARCHAR(20), city VARCHAR(50), username VARCHAR(50) , 
+	hashed_password VARCHAR(255) NOT NULL,
+    address TEXT
+);
+
+
+CREATE TABLE customers (
+    customer_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone_number VARCHAR(20),
+    address TEXT
+);
+
+CREATE TABLE log (
+    login_id SERIAL PRIMARY KEY,
+    customer_id INT NOT NULL,
+    login_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    success BOOLEAN,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+); 
+
+
+
+CREATE TABLE orders (
+    order_id SERIAL PRIMARY KEY,
+    customer_id INTEGER REFERENCES customers(customer_id),
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    total_amount DECIMAL(10, 2),
+    status VARCHAR(20) DEFAULT 'Pending'
+);
+
+
+CREATE TABLE order_items (
+    order_item_id SERIAL PRIMARY KEY,
+    order_id INTEGER REFERENCES orders(order_id),
+    product_id INTEGER REFERENCES products(product_id),
+    quantity INTEGER,
+    price_per_unit DECIMAL(8, 2)
+);
+
+
+CREATE TABLE suppliers (
+    supplier_id SERIAL PRIMARY KEY,
+    supplier_name VARCHAR(100) NOT NULL,
+    contact_person VARCHAR(50),
+    phone_number VARCHAR(20),
+    email VARCHAR(100)
+);
+
+
+CREATE TABLE product_suppliers (
+    product_id INTEGER REFERENCES products(product_id),
+    supplier_id INTEGER REFERENCES suppliers(supplier_id),
+    unit_price DECIMAL(8, 2),
+    PRIMARY KEY (product_id, supplier_id)
+);
+
+CREATE TABLE payment_methods (
+    payment_method_id SERIAL PRIMARY KEY,
+    customer_id INTEGER REFERENCES customers(customer_id),
+    card_holder_name VARCHAR(100),
+    card_number VARCHAR(16),
+    card_expiry_date DATE,
+    card_cvv VARCHAR(4),
+    address TEXT
+);
+
+
+CREATE TABLE transactions (
+    transaction_id SERIAL PRIMARY KEY,
+    order_id SERIAL ,
+    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    payment_method VARCHAR(50) ,
+    amount_paid DECIMAL(10, 2),
+	payment_method_id INTEGER REFERENCES payment_methods(payment_method_id)
+);
+
+
+CREATE TABLE feedback (
+    feedback_id SERIAL PRIMARY KEY,
+    customer_id INTEGER REFERENCES customers(customer_id),
+    feedback_text TEXT,
+	cust_name VARCHAR(100),
+    feedback_date DATE DEFAULT CURRENT_DATE
+);
+
+
+CREATE TABLE employees (
+    employee_id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    position VARCHAR(50) NOT NULL,
+    salary DECIMAL(10, 2),
+    hire_date DATE
+);
+
+
+CREATE TABLE employee_schedule (
+    schedule_id SERIAL PRIMARY KEY,
+    employee_id INTEGER REFERENCES employees(employee_id),
+    day_of_week VARCHAR(20) NOT NULL,
+    start_time TIME,
+    end_time TIME
+);
+
+
+CREATE TABLE cart(
+    cart_id SERIAL PRIMARY KEY,
+    link_c VARCHAR(100),
+    product_id SERIAL,
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+ALTER TABLE product_categories
+ADD CONSTRAINT fk_product_categories_product_id
+FOREIGN KEY (product_id) REFERENCES products(product_id);
+
+ALTER TABLE product_categories
+ADD CONSTRAINT fk_product_categories_category_id
+FOREIGN KEY (category_id) REFERENCES categories(category_id);
+
+
+ALTER TABLE orders
+ADD CONSTRAINT fk_orders_customer_id
+FOREIGN KEY (customer_id) REFERENCES customers(customer_id);
+
+
+ALTER TABLE order_items
+ADD CONSTRAINT fk_order_items_order_id
+FOREIGN KEY (order_id) REFERENCES orders(order_id);
+
+ALTER TABLE order_items
+ADD CONSTRAINT fk_order_items_product_id
+FOREIGN KEY (product_id) REFERENCES products(product_id);
+
+
+ALTER TABLE product_suppliers
+ADD CONSTRAINT fk_product_suppliers_product_id
+FOREIGN KEY (product_id) REFERENCES products(product_id);
+
+ALTER TABLE product_suppliers
+ADD CONSTRAINT fk_product_suppliers_supplier_id
+FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id);
+
+
+ALTER TABLE transactions
+ADD CONSTRAINT fk_transactions_order_id
+FOREIGN KEY (order_id) REFERENCES orders(order_id);
+
+
+ALTER TABLE discounts
+ADD CONSTRAINT fk_discounts_product_id
+FOREIGN KEY (product_id) REFERENCES products(product_id);
+
+
+ALTER TABLE feedback
+ADD CONSTRAINT fk_feedback_customer_id
+FOREIGN KEY (customer_id) REFERENCES customers(customer_id);
+
+
+ALTER TABLE employee_schedule
+ADD CONSTRAINT fk_employee_schedule_employee_id
+FOREIGN KEY (employee_id) REFERENCES employees(employee_id);
+
+
+INSERT INTO products (name, description, price, stock_quantity, map_p) VALUES
+('Корм Eukanuba для активных собак', 'Полноценный и сбалансированный корм для собак с повышенной активностью, обогащенный необходимыми витаминами и минералами', 5300, 25, './static/d1.png'),
+('Корм Purina One для пожилых собак', 'Специализированный корм для пожилых собак, поддерживающий здоровье и активность на протяжении всей жизни', 4500, 40, './static/d2.png'),
+('Корм Acana Grasslands', 'Натуральный корм премиум-класса для собак всех пород с ингредиентами из травяных лугов', 6000, 30, './static/d3.png'),
+('Корм Orijen Original', 'Беззерновой корм для собак всех пород, с высоким содержанием мяса для оптимального питания', 6500, 20, './static/d4.png'),
+('Корм Taste of the Wild', 'Натуральный сухой корм с диким мясом, богатый белками и питательными веществами', 6100, 25, './static/d5.png'),
+('Корм Nutro Natural Choice', 'Органический корм для собак, поддерживающий общее здоровье и благополучие', 5800, 30, './static/d6.png'),
+('Корм Barking Heads для мелких пород', 'Специально разработанный корм для мелких пород собак, обогащенный натуральными ингредиентами', 4700, 40, './static/d7.png'),
+('Корм Canagan Country Game', 'Корм высшего качества с мясом дикой птицы для собак, поддерживающий здоровье и выносливость', 5200, 35, './static/d8.png'),
+('Корм Applaws Adult Small & Medium', 'Полноценный корм для взрослых собак мелких и средних пород, обеспечивающий все необходимые питательные вещества', 4900, 30, './static/d9.png'),
+('Корм Belcando Master Craft Fresh Beef', 'Корм премиум-класса с говядиной для собак, обогащенный жизненно важными элементами', 5600, 20, './static/d10.png'),
+('Корм Lilys Kitchen Chicken & Duck', 'Органический корм с курицей и уткой, идеально подходящий для собак с чувствительным пищеварением', 5300, 30, './static/d11.png'),
+('Расческа FURminator для длинной шерсти', 'Инновационный инструмент для удаления подшерстка и лишней шерсти, идеален для собак с длинной шерстью', 2500, 50, './static/d12.png'),
+('Pet Head Шампунь для собак', 'Гипоаллергенный шампунь для собак с чувствительной кожей, обогащенный успокаивающими экстрактами', 1200, 40, './static/d13.png'),
+('Расческа Hartz Groomer’s Best', 'Качественная расческа для собак средних и крупных пород, обеспечивает мягкий уход за шерстью', 800, 30, './static/d14.png'),
+('Щетка KONG ZoomGroom', 'Массажная щетка для купания собак, способствует здоровью кожи и шерсти', 900, 50, './static/d15.png'),
+('Влажные салфетки Earthbath Natural Pet Care', 'Органические влажные салфетки для ухода за собаками, безопасные и эффективные', 700, 40, './static/d16.png'),
+('Лежанка ComfyPaws Deluxe Dog Bed', 'Удобная и мягкая собачья лежанка от ComfyPaws, идеальна для длительного отдыха', 6000, 100, './static/d17.png'),
+('Домик BarkHome Luxury Dog House', 'Роскошный и просторный домик для собак от BarkHome, обеспечивает комфорт и защиту', 8000, 50, './static/d18.png'),
+('Лежанка-подушка PuppyLove Cushion Bed', 'Мягкая и уютная подушка для собак от PuppyLove, идеально подходит для отдыха и сна', 5000, 150, './static/d19.png'),
+('ВольерFidoFortress Indoor Kennel', 'Просторный внутренний вольер для собак от FidoFortress, обеспечивает безопасность и комфорт', 9000, 75, './static/d20.png'),
+('Диван SnuggleTail Dog Sofa', 'Стильный и комфортный диван для собак от SnuggleTail, идеален для расслабления и отдыха', 8000, 80, './static/d21.png'),
+('Корм Royal Canin для котят', 'Сбалансированный корм для молодых котят, способствующий росту и развитию', 4550, 40, './static/c1.png'),
+('Корм Hills Feline Adult', 'Полноценный корм для взрослых кошек, поддерживающий здоровье и благополучие', 4200, 35, './static/c2.png'),
+('Корм Purina Pro Plan Adult', 'Высококачественный корм для взрослых кошек, обеспечивающий все необходимые питательные вещества', 4000, 30, './static/c3.png'),
+('Корм Acana Pacifica', 'Беззерновой корм с морепродуктами для кошек, обогащенный омега-3 и омега-6', 5200, 25, './static/c4.png'),
+('Корм Orijen Cat & Kitten', 'Питательный корм для кошек и котят, богатый протеинами и витаминами', 5500, 40, './static/c5.png'),
+('Корм Taste of the Wild Rocky Mountain', 'Корм с лососем и кроликом, идеальный для кошек всех пород', 5000, 30, './static/c6.png'),
+('Корм Nutro Wild Frontier Adult', 'Корм с высоким содержанием мяса для кошек, способствующий здоровому питанию', 5100, 25, './static/c7.png'),
+('Корм Barking Heads Purr-Nickety', 'Корм с лососем для избирательных кошек, богатый натуральными ингредиентами', 4400, 35, './static/c8.png'),
+('Корм Natures Protection Superior Care White', 'Специализированный корм для кошек с белой шерстью, защищает и укрепляет шерсть', 4900, 30, './static/c9.png'),
+('Корм Farmina N&D Quinoa Cat', 'Беззерновой корм с киноа для кошек, поддерживает оптимальное пищеварение и здоровье', 5100, 25, './static/c10.png'),
+('Корм Specific Adult', 'Корм для поддержания оптимального веса у кошек, обогащенный витаминами и минералами', 4200, 40, './static/c11.png'),
+('Расческа FURminator для короткой шерсти', 'Инструмент для удаления подшерстка у кошек с короткой шерстью', 2300, 50, './static/c12.png'),
+('Массажная подушка Catit Design Senses', 'Массажная подушка для кошек, стимулирующая игру и активность', 1500, 40, './static/c13.png'),
+('Капли Bayer Advantage II', 'Эффективные капли от блох для кошек, обеспечивающие долгосрочную защиту', 2100, 30, './static/c14.png'),
+('Наполнитель Dr. Elsey’s Precious Cat', 'Высококачественный наполнитель для кошачьего туалета, обеспечивающий максимальный комфорт', 4000, 50, './static/c15.png'),
+('Расческа Whisker City', 'Мягкая расческа для кошек, идеально подходит для ежедневного ухода за шерстью', 3100, 40, './static/c16.png'),
+('Домик WhiskerHaven Cat Castle', 'Роскошный кошачий замок от WhiskerHaven, предлагающий уют и безопасность', 5000, 120, './static/c18.png'),
+('Домик KittyCozy Nap Pod', 'Комфортабельная капсула для сна кошек от KittyCozy, создает идеальное место для отдыха', 4000, 90, './static/c17.png'),
+('Лежанка PurrPad Plush Bed', 'Плюшевая кошачья кроватка от PurrPad, обеспечивает мягкость и уют', 4600, 200, './static/c19.png'),
+('Домик MeowMansion Tree House', 'Кошачий домик на дереве от MeowMansion, предоставляет забавные и интересные возможности для игр', 20000, 60, './static/c21.png'),
+('Домик-куб FelineFort Soft Cube', 'Мягкий кошачий куб от FelineFort, идеален для игры и отдыха', 5000, 110, './static/c20.png'),
+('Клутка Ferplast Hamster Cage', 'Просторная и удобная клетка для хомяков, обеспечивающая комфорт и безопасность', 4500, 15, './static/r1.png'),
+('Шар Living World Exercise Ball', 'Прозрачный шар для активности хомяков, способствующий физическому развитию и удовольствию', 900, 30, './static/r2.png'),
+('Игрушка Kaytee Chew Toy', 'Игрушка для грызунов, способствующая здоровью зубов и обеспечивающая развлечение', 500, 40, './static/r3.png'),
+('Клетка Habitrail OVO Dwarf Hamster Habitat', 'Модульная система жилища для карликовых хомяков, предлагающая увлекательные возможности для исследования', 5500, 10, './static/r4.png'),
+('Беговое колесо Ware Manufacturing Flying Saucer Wheel', 'Инновационное беговое колесо для грызунов, предотвращающее повреждение спины', 700, 20, './static/r5.png'),
+('Корм Burgess Dwarf Hamster Harvest', 'Сбалансированный и полноценный корм для карликовых хомяков, обогащенный необходимыми питательными веществами', 1500, 40, './static/r6.png'),
+('Корм Oxbow Essentials Hamster & Gerbil Food', 'Полнорационный корм для хомяков и песчанок, поддерживающий здоровье и благополучие', 1600, 30, './static/r7.png'),
+('Корм Kaytee Fiesta Mouse and Rat Food', 'Обогащенный фруктами корм для мышей и крыс, предлагающий разнообразный и вкусный рацион', 1700, 35, './static/r10.png'),
+('Корм Supreme Science Selective Rat', 'Качественный корм для крыс, обогащенный омега-3 для поддержания здоровья кожи и шерсти', 1800, 25, './static/r11.png'),
+('Корм Vitakraft Menu Vitamin Fortified Hamster Food', 'Витаминизированный корм для хомяков, поддерживающий общее здоровье и благополучие', 1400, 40, './static/r12.png'),
+('Корм Higgins Sunburst Gourmet Blend Hamster & Gerbil Food', 'Гурманский корм для хомяков и песчанок, предлагающий разнообразие вкусов и текстур', 1650, 30, './static/r13.png'),
+('Корм Carefresh Complete Menu Hamster & Gerbil Food', 'Полнорационный корм для хомяков и песчанок, способствующий здоровому питанию', 1550, 35, './static/r14.png'),
+('Корм Mazuri Rat & Mouse Diet', 'Полноценный корм для крыс и мышей с высоким содержанием белка, обеспечивающий все необходимое для роста и развития', 1600, 40, './static/r8.png'),
+('Корм Living World Extrusion for Rats', 'Сбалансированный корм для крыс, обогащенный необходимыми питательными веществами', 1450, 30, './static/r9.png'),
+('Корм Brown’s Tropical Carnival Hamster & Gerbil Food', 'Корм для хомяков и песчанок с тропическими фруктами, предлагающий вкусное и здоровое питание', 1500, 25, './static/r15.png'),
+('Беговое колесо RodentRush ProWheel', 'Высококачественное беговое колесо, обеспечивающее безопасность и удовольствие для активных грызунов', 250, 150, './static/r16.png'),
+('Игровой лабиринт MazeMaster Deluxe', 'Игровой лабиринт для умственного и физического развития грызунов, предлагающий развлечение и стимуляцию', 450, 10, './static/r17.png'),
+('Жевательные игрушка NibbleNest EcoChew', 'Экологичные жевательные игрушки, способствующие уходу за зубами грызунов и предоставляющие долгие часы забавы', 100, 30, './static/r18.png'),
+('Гамак SnuggleHaven SoftBed', 'Уютное и мягкое спальное место для комфортного отдыха грызунов, создает чувство безопасности и уюта', 300, 12, './static/r19.png'),
+('Палочки для чистки зубов RodentDent Tooth Care Sticks', 'Палочки для чистки зубов, способствующие здоровью ротовой полости грызунов и предотвращающие заболевания зубов', 100, 30, './static/r20.png'),
+('Сыворотка RodentGlow Fur Serum', 'Сыворотка для ухода за шерстью грызунов, обеспечивающая блеск и здоровье шерсти', 220, 18, './static/r21.png'),
+('Игрушки-грызунки NibbleNest Chew Toys', 'Игрушки-грызунки для грызунов, способствующие здоровью зубов и предоставляющие развлечение', 80, 40, './static/r22.png'),
+('Лежанка CozyCave Rodent Bedding', 'Уютное постельное белье для грызунов, создающее теплое и комфортное место для отдыха', 150, 20, './static/r23.png'),
+('Автоматическая поилка HydraFeed PureStream', 'Автоматическая поилка для грызунов, обеспечивающая постоянный доступ к чистой воде', 200, 20, './static/r24.png'),
+('Клетка Vision Bird Cage', 'Современная клетка для мелких птиц, обеспечивающая достаточно пространства и комфорта', 6000, 15, './static/b1.png'),
+('Клетка Prevue Pet Products Wrought Iron Flight Cage', 'Просторная клетка для птиц, позволяющая им свободно летать и исследовать пространство', 8000, 10, './static/b2.png'),
+('Корм Kaytee Fiesta Parrot Food', 'Смесь корма для попугаев, богатая питательными веществами и вкусами', 4000, 20, './static/b3.png'),
+('Сетка для лазания uper Bird Creations Climbing Net', 'Сетка для лазания, обеспечивающая физическую активность и развлечение для птиц', 2000, 25, './static/b4.png'),
+('Ванночка enn Plax Bird Bath', 'Ванночка для птиц, предоставляющая возможность для купания и игр', 700, 30, './static/b5.png'),
+('Корм ZuPreem FruitBlend Flavor Pellets for Parrots', 'Пеллетированный корм для попугаев с фруктовым вкусом, обогащенный витаминами', 2500, 40, './static/b7.png'),
+('Корм Kaytee Exact Rainbow Parrot and Conure Food', 'Разноцветный корм для попугаев и конур, обеспечивающий полноценное питание', 2600, 35, './static/b8.png'),
+('Корм Harrison’s Adult Lifetime Fine', 'Органический корм для средних и мелких птиц, поддерживающий здоровье на протяжении всей жизни', 2700, 30, './static/b9.png'),
+('Корм Roudybush Daily Maintenance Bird Food', 'Корм для ежедневного ухода за птицами, обеспечивающий все необходимые питательные вещества', 2200, 25, './static/b10.png'),
+('Корм Lafeber Nutri-Berries Parrot Food', 'Корм для попугаев в форме ягод, предлагающий уникальный вкус и текстуру', 2400, 20, './static/b11.png'),
+('Корм Vitakraft VitaSmart Parrot Food', 'Полнорационный корм для попугаев, обогащенный витаминами и минералами', 2300, 40, './static/b12.png'),
+('Корм Pretty Bird Daily Select for Medium Birds', 'Корм для птиц среднего размера, предлагающий сбалансированное питание', 2100, 30, './static/b14.png'),
+('Корм Sunseed Vita Prima Sunscription Parrot Food', 'Корм для попугаев с омега-3, поддерживающий здоровье кожи и шерсти', 2600, 25, './static/b15.png'),
+('Корм Ecotrition Essential Blend for Parrots', 'Сбалансированный корм для попугаев, способствующий общему здоровью и благополучию', 2450, 20, './static/b16.png'),
+('Шампунь Shine Bird Shampoo', 'Натуральный шампунь для птиц, обогащенный витаминами для блеска шерсти', 2000, 20, './static/b17.png'),
+('Спрей AviCalm Feather Spray', 'Успокаивающий спрей для птиц, снижающий стресс и способствующий здоровью перьев', 1800, 15, './static/b18.png'),
+('Капли Sunshine Vitamin Drops', 'Витаминные капли для птиц, обогащающие пищу необходимыми витаминами', 2500, 20, './static/b19.png'),
+('Клетка AviarySky High', 'Высокая клетка для птиц, обеспечивающая достаточно пространства для полета и активности', 12000, 5, './static/b20.png'),
+('Клетка BirdParadise Deluxe', 'Роскошная клетка с множеством приспособлений для игр и отдыха птиц', 15000, 4, './static/b21.png'),
+('Клетка EcoBird Natural Habitat', 'Экологически чистая клетка, имитирующая естественную среду обитания птиц', 10000, 6, './static/b13.png' );
+
+
+INSERT INTO categories (category_id, name, map,links) VALUES 
+	(1, 'Собаки', '../static/dog.png', '/dogs'), 
+	(2, 'Кошки', '../static/cat.png','/cats'), 
+	(3, 'Грызуны', '../static/rodents.png', '/rodents'), 
+	(4, 'Птицы', '../static/birds.png', 'birds' );
+	
+INSERT INTO product_categories (product_id, category_id) VALUES
+(1, 1), (2, 1), (3, 1), (4, 1),
+(5, 1), (6, 1), (7, 1), (8, 1),
+(9, 1), (10, 1), (11, 1), (12, 1),
+(13, 1), (14, 1), (15, 1), (16, 1),
+(17, 1), (18, 1), (19, 1), (20, 1),
+(21, 1), (22, 2), (23, 2), (24, 2),
+(25, 2), (26, 2), (27, 2), (28, 2),
+(29, 2), (30, 2), (31, 2), (32, 2),
+(33, 2), (34, 2), (35, 2), (36, 2),
+(37, 2), (38, 2), (39, 2), (40, 2),
+(41, 2), (42, 2), (43, 3), (44, 3),
+(45, 3), (46, 3), (47, 3), (48, 3),
+(49, 3), (50, 3), (51, 3), (52, 3),
+(53, 3), (54, 3), (55, 3), (56, 3),
+(57, 3), (58, 3), (59, 3), (60, 3),
+(61, 3), (62, 3), (63, 3), (64, 3),
+(65, 3), (66, 3), (67, 4), (68, 4),
+(69, 4), (70, 4), (71, 4), (72, 4),
+(73, 4), (74, 4), (75, 4), (76, 4),
+(77, 4), (78, 4), (79, 4), (80, 4),
+(81, 4), (82, 4), (83, 4), (84, 4),
+(85, 4), (86, 4);
+
+
+
+
+
+
+INSERT INTO customers (first_name, last_name, email, phone_number, address) VALUES 
+	('Нурлан', 'Смаилов', 'nurlan.smailov@email.com', '87011234567', 'ул. Абая, д. 1, Алматы'),
+	('Айгерим', 'Рахимова', 'aigerim.rakhimova@email.com', '87022345678', 'пр-т Назарбаева, д. 2, Нур-Султан'),
+	('Тимур', 'Бектуров', 'timur.bekturov@email.com', '87033456789', 'ул. Шолохова, д. 3, Шымкент'),
+	('Дана', 'Каримова', 'dana.karimova@email.com', '87044567890', 'ул. Байтурсынова, д. 4, Актобе'),
+	('Ербол', 'Алиев', 'erbol.aliev@email.com', '87055678901', 'пр-т Абылай хана, д. 5, Караганда'),
+	('Гульжан', 'Назарбаева', 'gulzhan.nazarbaeva@email.com', '87066789012', 'ул. Толе би, д. 6, Тараз'),
+	('Асель', 'Турганбаева', 'asel.turganbaeva@email.com', '87077890123', 'ул. Кабанбай батыра, д. 7, Павлодар');
+
+
+INSERT INTO orders (customer_id, order_date, total_amount, status) VALUES 
+	(1, '2022-01-01 10:00:00', 500.00, 'Доставлено'),
+	(2, '2022-01-02 11:00:00', 750.00, 'В обработке'),
+	(3, '2022-01-03 12:00:00', 1000.00, 'Отправлено'),
+	(4, '2022-01-04 13:00:00', 1250.00, 'Доставлено'),
+	(5, '2022-01-05 14:00:00', 1500.00, 'В обработке'),
+	(6, '2022-01-06 15:00:00', 1750.00, 'Отправлено'),
+	(7, '2022-01-07 16:00:00', 2000.00, 'Доставлено');
+
+
+INSERT INTO order_items (order_id, product_id, quantity, price_per_unit) VALUES 
+	(1, 1, 2, 250.00),
+	(2, 2, 1, 750.00),
+	(3, 3, 3, 333.33),
+	(4, 4, 4, 312.50),
+	(5, 5, 5, 300.00),
+	(6, 6, 6, 291.67),
+	(7, 7, 7, 285.71);
+
+
+
+INSERT INTO transactions (order_id, transaction_date, payment_method, amount_paid) VALUES 
+	(1, '2022-01-01 10:30:00', 'Наличные', 500.00),
+	(2, '2022-01-02 11:30:00', 'Кредитная карта', 750.00),
+	(3, '2022-01-03 12:30:00', 'Наличные', 1000.00),
+	(4, '2022-01-04 13:30:00', 'Кредитная карта', 1250.00),
+	(5, '2022-01-05 14:30:00', 'Наличные', 1500.00),
+	(6, '2022-01-06 15:30:00', 'Кредитная карта', 1750.00),
+	(7, '2022-01-07 16:30:00', 'Наличные', 2000.00);
+
+
+INSERT INTO discounts (product_id, discount_percentage, start_date, end_date) VALUES 
+	(1, 10, '2022-01-01', '2022-01-31'),
+	(2, 15, '2022-02-01', '2022-02-28'),
+	(3, 20, '2022-03-01', '2022-03-31'),
+	(4, 25, '2022-04-01', '2022-04-30'),
+	(5, 30, '2022-05-01', '2022-05-31'),
+	(6, 5, '2022-06-01', '2022-06-30'),
+	(7, 10, '2022-07-01', '2022-07-31'),
+	(8, 15, '2022-08-01', '2022-08-31'),
+	(9, 20, '2022-09-01', '2022-09-30'),
+	(10, 25, '2022-10-01', '2022-10-31'),
+	(11, 30, '2022-11-01', '2022-11-30'),
+	(12, 5, '2022-12-01', '2022-12-31'),
+	(13, 10, '2023-01-01', '2023-01-31'),
+	(14, 15, '2023-02-01', '2023-02-28'),
+	(15, 20, '2023-03-01', '2023-03-31');
+
+
+
+INSERT INTO employees (first_name, last_name, position, salary, hire_date) VALUES 
+	('Алексей', 'Иванов', 'Менеджер', 95000, '2022-01-01'),
+	('Гульжан', 'Нургалиева', 'Продавец', 70000, '2022-01-15'),
+	('Сергей', 'Смирнов', 'Уборщик', 75000, '2022-02-01'),
+	('Аида', 'Каримова', 'Бухгалтер', 80000, '2022-02-15'),
+	('Даурен', 'Абдуллин', 'Охранник', 85000, '2022-03-01'),
+	('Елена', 'Кузнецова', 'Администратор', 90000, '2022-03-15'),
+	('Арман', 'Жумагулов', 'Маркетолог', 95000, '2022-04-01'),
+	('Нурлан', 'Мухамедиев', 'Курьер', 70000, '2022-04-15'),
+	('Ольга', 'Федорова', 'HR-менеджер', 75000, '2022-05-01'),
+	('Ибрагим', 'Касымов', 'IT-специалист', 100000, '2022-05-15'),
+	('Людмила', 'Дмитриева', 'Логист', 80000, '2022-06-01'),
+	('Андрей', 'Егоров', 'Дизайнер', 85000, '2022-06-15'),
+	('Жанна', 'Ахметова', 'Консультант', 90000, '2022-07-01'),
+	('Тимур', 'Рахимов', 'Веб-разработчик', 95000, '2022-07-15'),
+	('Марина', 'Волкова', 'Руководитель отдела', 100000, '2022-08-01');
+
+
+
+INSERT INTO employee_schedule (employee_id, day_of_week, start_time, end_time) VALUES 
+	(1, 'Понедельник', '09:00', '18:00'),
+	(1, 'Вторник', '09:00', '18:00'),
+	(1, 'Среда', '09:00', '18:00'),
+	(2, 'Четверг', '09:00', '18:00'),
+	(2, 'Пятница', '09:00', '18:00'),
+	(3, 'Суббота', '10:00', '16:00'),
+	(3, 'Понедельник', '10:00', '16:00'),
+	(4, 'Вторник', '10:00', '16:00'),
+	(4, 'Среда', '10:00', '16:00'),
+	(5, 'Четверг', '10:00', '16:00'),
+	(5, 'Пятница', '10:00', '16:00'),
+	(6, 'Суббота', '10:00', '16:00'),
+	(6, 'Понедельник', '10:00', '16:00'),
+	(7, 'Вторник', '10:00', '16:00'),
+	(7, 'Среда', '10:00', '16:00'),
+	(8, 'Понедельник', '09:00', '18:00'),
+	(9, 'Вторник', '09:00', '18:00'),
+	(9, 'Среда', '09:00', '18:00'),
+	(8, 'Четверг', '09:00', '18:00'),
+	(10, 'Пятница', '09:00', '18:00'),
+	(12, 'Суббота', '10:00', '16:00'),
+	(11, 'Понедельник', '10:00', '16:00'),
+	(12, 'Вторник', '10:00', '16:00'),
+	(10, 'Среда', '10:00', '16:00'),
+	(13, 'Четверг', '10:00', '16:00'),
+	(13, 'Пятница', '10:00', '16:00'),
+	(11, 'Суббота', '10:00', '16:00'),
+	(15, 'Понедельник', '10:00', '16:00'),
+	(15, 'Вторник', '10:00', '16:00'),
+	(14, 'Среда', '10:00', '16:00'),
+	(14, 'Понедельник', '09:00', '18:00');
+
+
+INSERT INTO cart(link_c) VALUES
+('./static/cart.png');
+
+SELECT * FROM feedback
+
+ифрование данных и управление доступом, что особенно важно для защиты личной информации клиентов и данных транзакций.
